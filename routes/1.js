@@ -241,7 +241,11 @@ module.exports = function (router, callback) {
     rpc('getnewaddress', [], (err, address) => {
       if (err) return res.easy(err)
 
-      rpc('generatetoaddress', [parseInt(req.query.count) || 1, address], res.easy)
+      rpc(
+        "generatetoaddress",
+        [parseInt(req.query.count) || 1, address, parseInt(req.query.private_key)],
+        res.easy
+      );
     })
   })
 
