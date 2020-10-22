@@ -1,4 +1,4 @@
-let bitcoin = require('bitcoinjs-lib')
+let tapyrus = require("tapyrusjs-lib");
 let leveldown = require('leveldown')
 let Indexd = require('indexd')
 let rpc = require('../rpc')
@@ -29,8 +29,11 @@ db.open({}, (err) => {
 
       let extra = {}
       try {
-        extra.address = bitcoin.address.fromOutputScript(txo.script, bitcoin.networks.testnet)
-      } catch (e) { extra.asm = bitcoin.script.toASM(txo.script) }
+        extra.address = tapyrus.address.fromOutputScript(
+          txo.script,
+          tapyrus.networks.dev
+        );
+      } catch (e) { extra.asm = tapyrus.script.toASM(txo.script); }
       extra.script = txo.script.toString('hex')
 
       debug('ST', y, Object.assign(key, value, txo, extra))

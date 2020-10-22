@@ -1,6 +1,6 @@
 let { get: indexd } = require('../service')
 let bodyParser = require('body-parser')
-let bitcoin = require('bitcoinjs-lib')
+let tapyrus = require("tapyrusjs-lib");
 let debug = require('debug')('1')
 let fs = require('fs')
 let parallel = require('run-parallel')
@@ -9,7 +9,7 @@ let typeforce = require('typeforce')
 let isHex64 = typeforce.HexN(64)
 
 let DBLIMIT = 440 // max sequential leveldb walk
-let NETWORK = bitcoin.networks.regtest
+let NETWORK = tapyrus.networks.dev;
 
 let sleep = ms => new Promise(r => setTimeout(r, ms))
 
@@ -58,10 +58,10 @@ module.exports = function (router, callback) {
   function addressWare (req, res, next) {
     const { address } = req.params
     try {
-      let script = !address.match(/^[0-9a-f]+$/i) ?
-        bitcoin.address.toOutputScript(address, NETWORK) :
-        Buffer.from(address, 'hex')
-      req.params.scId = bitcoin.crypto.sha256(script).toString('hex')
+      let script = !address.match(/^[0-9a-f]+$/i)
+        ? tapyrus.address.toOutputScript(address, NETWORK)
+        : Buffer.from(address, "hex");
+      req.params.scId = tapyrus.crypto.sha256(script).toString("hex");
     } catch (e) { return res.easy(400) }
     next()
   }
@@ -118,18 +118,22 @@ module.exports = function (router, callback) {
       const unspents = await pUtxosByScriptRange(scId)
       const results = unspents.map(unspent => {
         const script = !!unspent.address
-          ? bitcoin.address.toOutputScript(unspent.address, NETWORK)
-          : null
+          ? tapyrus.address.toOutputScript(unspent.address, NETWORK)
+          : null;
         return {
           value_int: unspent.value,
           txid: unspent.txId,
           n: unspent.vout,
           ...(!unspent.address ? {} : { addresses: [unspent.address] }),
-          ...(!unspent.address ? {} : { script_pub_key: {
-            asm: bitcoin.script.toASM(script),
-            hex: script.toString('hex')
-          } }),
-        }
+          ...(!unspent.address
+            ? {}
+            : {
+                script_pub_key: {
+                  asm: tapyrus.script.toASM(script),
+                  hex: script.toString("hex"),
+                },
+              }),
+        };
       })
       res.easy(undefined, results)
     } catch (err) {
@@ -228,7 +232,7 @@ module.exports = function (router, callback) {
   // regtest features
   function authMiddleware (req, res, next) {
     if (!req.query.key) return res.easy(401)
-    let hash = bitcoin.crypto.sha256(req.query.key).toString('hex')
+    let hash = tapyrus.crypto.sha256(req.query.key).toString("hex");
     if (hash in AUTH_KEYS) return next()
     res.easy(401)
   }
@@ -247,10 +251,13 @@ module.exports = function (router, callback) {
 
   router.post('/r/faucetScript', authMiddleware, async (req, res) => {
     try {
-      const key = bitcoin.ECPair.makeRandom({ network: NETWORK })
-      const payment = bitcoin.payments.p2pkh({ pubkey: key.publicKey, network: NETWORK })
+      const key = tapyrus.ECPair.makeRandom({ network: NETWORK });
+      const payment = tapyrus.payments.p2pkh({
+        pubkey: key.publicKey,
+        network: NETWORK,
+      });
       const address = payment.address
-      const scId = bitcoin.crypto.sha256(payment.output).toString('hex')
+      const scId = tapyrus.crypto.sha256(payment.output).toString("hex");
 
       const txId = await pRpc('sendtoaddress', [address, parseInt(req.query.value) * 2 / 1e8])
       let unspent
@@ -264,7 +271,7 @@ module.exports = function (router, callback) {
           await sleep(10)
         }
       }
-      const txvb = new bitcoin.TransactionBuilder(NETWORK);
+      const txvb = new tapyrus.TransactionBuilder(NETWORK);
       txvb.addInput(unspent.txId, unspent.vout, undefined, payment.output);
       txvb.addOutput(Buffer.from(req.query.script, 'hex'), parseInt(req.query.value));
       txvb.sign(0, key);
@@ -280,11 +287,11 @@ module.exports = function (router, callback) {
     if (err) return callback(err)
 
     buffer
-      .toString('utf8')
-      .split('\n')
-      .filter(x => x)
-      .map(x => bitcoin.crypto.sha256(x).toString('hex')) // XXX: yes, from plain-text :)
-      .forEach(x => (AUTH_KEYS[x] = true))
+      .toString("utf8")
+      .split("\n")
+      .filter((x) => x)
+      .map((x) => tapyrus.crypto.sha256(x).toString("hex")) // XXX: yes, from plain-text :)
+      .forEach((x) => (AUTH_KEYS[x] = true));
     debug(`imported ${Object.keys(AUTH_KEYS).length} authorized keys`.toUpperCase())
 
     callback()

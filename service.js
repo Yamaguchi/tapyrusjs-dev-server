@@ -36,7 +36,7 @@ module.exports = function initialize (callback) {
       else sequences[topic] += 1
 
       if (sequence !== sequences[topic]) {
-        if (sequence < sequences[topic]) debugZmq(`bitcoind may have restarted`)
+        if (sequence < sequences[topic]) debugZmq(`tapyrusd may have restarted`)
         else debugZmq(`${sequence - sequences[topic]} messages lost`)
         sequences[topic] = sequence
         indexd.tryResync(errorSink)
