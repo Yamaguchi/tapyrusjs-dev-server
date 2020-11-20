@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/chaintope/tapyrusjs-dev-server#readme",
   "dependencies": {
-    "tapyrusjs-lib": "https://github.com/chaintope/tapyrusjs-lib",
+    "tapyrusjs-lib": "https://github.com/Yamaguchi/tapyrusjs-lib#ef19be0e20b8b14ec038388746ca27411970b76c",
     "cors": "^2.8.5",
     "debug": "^4.1.0",
     "debug-ware": "^1.2.10",

@@ -10,6 +10,10 @@ server=1
 keypool=1
 discover=0
 dev=1
+txindex=1
+zmqpubhashtx=tcp://127.0.0.1:30001
+zmqpubhashblock=tcp://127.0.0.1:30001
+rpcworkqueue=32
 [dev]
 port=12383
 rpcport=12381
