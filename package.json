@@ -1,5 +1,5 @@
 {
-  "name": "regtest-server",
+  "name": "tapyrusjs-dev-server",
   "version": "1.0.0",
   "description": "",
   "private": true,
@@ -10,16 +10,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bitcoinjs/regtest-server.git"
+    "url": "git+https://github.com/chaintope/tapyrusjs-dev-server.git"
   },
   "author": "",
   "license": "BSD3",
   "bugs": {
-    "url": "https://github.com/bitcoinjs/regtest-server/issues"
+    "url": "https://github.com/chaintope/tapyrusjs-dev-server/issues"
   },
-  "homepage": "https://github.com/bitcoinjs/regtest-server#readme",
+  "homepage": "https://github.com/chaintope/tapyrusjs-dev-server#readme",
   "dependencies": {
-    "bitcoinjs-lib": "5.0.x",
+    "tapyrusjs-lib": "https://github.com/chaintope/tapyrusjs-lib",
     "cors": "^2.8.5",
     "debug": "^4.1.0",
     "debug-ware": "^1.2.10",

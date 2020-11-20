@@ -1,40 +1,28 @@
-FROM ubuntu:18.04
-MAINTAINER Jonathan Underwood
+FROM tapyrus/tapyrusd:latest
 
-RUN apt update && apt install -y software-properties-common
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN add-apt-repository -y ppa:luke-jr/bitcoincore && \
-   apt update && \
+RUN apt update && \
    apt install -y \
-   curl \
-   wget \
-   tar \
-   python \
-   build-essential \
-   libzmq3-dev \
-   libsnappy-dev && \
-   apt install -y \
-   bitcoind && \
+   curl && \
    curl --silent --location https://deb.nodesource.com/setup_10.x | bash -
 
 RUN apt install -y \
   git \
   vim \
   nodejs && \
-  mkdir /root/regtest-data && \
-  echo "satoshi" > /root/regtest-data/KEYS
+  mkdir /root/dev-data && \
+  echo "satoshi" > /root/dev-data/KEYS
 
 WORKDIR /root
 
-COPY run_regtest_app.sh run_bitcoind_service.sh install_leveldb.sh ./
+COPY run_dev_app.sh run_tapyrusd_service.sh ./
 
-RUN chmod +x install_leveldb.sh && \
-  chmod +x run_bitcoind_service.sh && \
-  chmod +x run_regtest_app.sh && \
-  ./install_leveldb.sh
+RUN chmod +x run_tapyrusd_service.sh && \
+  chmod +x run_dev_app.sh
 
-RUN git clone https://github.com/bitcoinjs/regtest-server.git
-WORKDIR /root/regtest-server
+RUN git clone https://github.com/Yamaguchi/tapyrusjs-dev-server.git -b wip
+WORKDIR /root/tapyrusjs-dev-server
 
 # Change the checkout branch if you need to. Must fetch because of Docker cache
 # RUN git fetch origin && \
@@ -42,6 +30,6 @@ WORKDIR /root/regtest-server
 
 RUN npm i
 
-ENTRYPOINT ["/root/run_regtest_app.sh"]
+ENTRYPOINT ["/root/run_dev_app.sh"]
 
 EXPOSE 8080
